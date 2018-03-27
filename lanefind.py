@@ -12,27 +12,33 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import os
 import _pickle as cPickle
+from thresholding import applyThreshold
+from perspective_transform import perspectiveTransform
 
 calImgLoc = 'camera_cal'
 distortedImageLoc = 'test_images'
 # Compute the camera calibration matrix and distortion coefficients
 
-def saveimage(image, name='', color=False, loc="data/testing"):
+def saveimage(image, name='', loc="data/testing"):
     """
     Save given numpy array as an png image
     """
     iname = name + '.png'
-
     cv2.imwrite(loc + "/" + iname, image)
+    print("[save:] %s" %(loc + "/" + iname))
 
-    # fig = plt.figure(figsize=(5, 5))
-    # ax = fig.add_subplot(111)
-    # if color:
-    #     print('color')
-    #     ax.imshow(image)
-    # else:
-    #     ax.imshow(image, cmap = 'gray')
-    # fig.savefig(loc + "/" + iname, bbox_inches='tight')
+
+def saveimageplt(image, name='', loc="data/testing"):
+
+    iname = name + '.png'
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+    ax.imshow(image, cmap = 'gray')
+    fig.savefig(loc + "/" + iname, bbox_inches='tight')
+    plt.close(fig)
+    plt.clf()
+    print("[save:] %s" %(loc + "/" + iname))
+
 
 
 '''load the camera matrix from the pickle file
@@ -118,27 +124,42 @@ def calibrateCamera():
 
     return mtx, dist
 
-def _applyDistortionCorrection(mtx, dist, imgpath):
+def applyDistortionCorrection(mtx, dist, imgpath):
 
     undistimg = cv2.undistort(cv2.imread(imgpath), mtx, dist, None, mtx)
     return undistimg
 
-
-def distortionCorrection(mtx, dist):
-
-    Images = glob.glob(distortedImageLoc + "/*.jpg")
-    for img in Images:
-        undistimg = _applyDistortionCorrection(mtx, dist, img)
-        saveimage(undistimg, img.split('/')[-1].split('.')[0] + '_undist', True)
-
-
 def main():
     # [x] Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
     mtx, dist = calibrateCamera()
-    # [x] Apply a distortion correction to raw images.
-    image = distortionCorrection(mtx, dist)
+
+    Images = glob.glob(distortedImageLoc + "/*.jpg")
+    for img in Images:
+        '''
+            [x] Apply a distortion correction to raw color images.
+        '''
+        undistimg = applyDistortionCorrection(mtx, dist, img)
+        # saveimage(undistimg, img.split('/')[-1].split('.')[0] + '_undist', True)
+
+        '''
+            [x] Apply threshold to color image and get a binary image
+        '''
+        binaryImage = applyThreshold(undistimg)
+        # saveimageplt(binaryImage, img.split('/')[-1].split('.')[0] + '_binary')
+
+        """
+            [x] Apply a perspective transform to rectify binary image ("birds-eye view").
+        """
+
+        warped_img = perspectiveTransform(binaryImage, img)
+
+        saveimageplt(warped_img, img.split('/')[-1].split('.')[0] + '_warped')
+
+
+
+
     # Use color transforms, gradients, etc., to create a thresholded binary image.
-    applyThreshold(image)
+    # applyThreshold(image)
 
 
 if __name__ == '__main__':
