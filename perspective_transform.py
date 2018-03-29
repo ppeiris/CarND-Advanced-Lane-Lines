@@ -24,25 +24,34 @@ def saveimageplt(image, pts, name='', loc="data/testing"):
 
 def perspectiveTransform(img, name):
 
-	srcpts = np.float32([[150, img.shape[0]-5],
-				[550, 450],
-				[750, 450],
-				[1250, img.shape[0]-5]])
+    srcpts = np.float32([
+        [150, img.shape[0]-5],
+        [550, 450],
+        [750, 450],
+        [1250, img.shape[0]-5]]
+    )
 
-	# destpts = np.float32([[150, img.shape[0]-5],
-	# 			[150, 0],
-	# 			[1250, 0],
-	# 			[1250, img.shape[0]-5]])
+    # destpts = np.float32([[150, img.shape[0]-5],
+    # 			[150, 0],
+    # 			[1250, 0],
+    # 			[1250, img.shape[0]-5]])
 
-	destpts = np.float32([[100, img.shape[0]-5],
-				[100, 0],
-				[1200, 0],
-				[1200, img.shape[0]-5]])
+    destpts = np.float32([
+                    [150, img.shape[0]-5],
+                    [150, 50],
+                    [1100, 50],
+                    [1100, img.shape[0]-5]
+                ])
 
-	# saveimageplt(img, destpts, name.split('/')[-1].split('.')[0] + '_point')
 
-	M = cv2.getPerspectiveTransform(srcpts, destpts)
-	img_size = (img.shape[1], img.shape[0])
-	warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
+    # img = cv2.line(img, (srcpts[0][0], srcpts[0][1]), (srcpts[1][0], srcpts[1][1]), (0,255,0), 2)
+    # cv2.line(img,(srcpts[0][0], srcpts[0][1]),(srcpts[1][0], srcpts[1][1]),(0,0,255),1)
 
-	return warped
+    saveimageplt(img, srcpts, name.split('/')[-1].split('.')[0] + '_point')
+
+    M = cv2.getPerspectiveTransform(srcpts, destpts)
+    Minv = cv2.getPerspectiveTransform(destpts, srcpts)
+    img_size = (img.shape[1], img.shape[0])
+    warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
+
+    return warped, Minv

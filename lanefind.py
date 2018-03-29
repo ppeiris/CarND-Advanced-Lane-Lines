@@ -14,6 +14,7 @@ import os
 import _pickle as cPickle
 from thresholding import applyThreshold
 from perspective_transform import perspectiveTransform
+from locatelanelines import locatelanes, locatelanes_slidingwindow
 
 calImgLoc = 'camera_cal'
 distortedImageLoc = 'test_images'
@@ -151,10 +152,13 @@ def main():
             [x] Apply a perspective transform to rectify binary image ("birds-eye view").
         """
 
-        warped_img = perspectiveTransform(binaryImage, img)
+        warped_img, Minv = perspectiveTransform(binaryImage, img)
 
         saveimageplt(warped_img, img.split('/')[-1].split('.')[0] + '_warped')
 
+        locatelanes(img, warped_img)
+        finalimg  = locatelanes_slidingwindow(img, warped_img, undistimg, Minv)
+        saveimage(finalimg, img.split('/')[-1].split('.')[0] + '_final')
 
 
 
