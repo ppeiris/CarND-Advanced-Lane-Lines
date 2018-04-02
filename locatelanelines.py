@@ -103,12 +103,31 @@ def locatelanes(name, warped):
 
     return output
 
-def locatelanes_slidingwindow(name, binary_warped, undist, Minv):
+def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
+
+    loc="data/testing"
     # Assuming you have created a warped binary image called "binary_warped"
     # Take a histogram of the bottom half of the image
     histogram = np.sum(binary_warped[binary_warped.shape[0]//2:,:], axis=0)
+    histname = name.split('/')[-1].split('.')[0] + '_hist'
+    np.save(loc + "/" + histname, histogram)
     # Create an output image to draw on and  visualize the result
-    out_img = np.dstack((binary_warped, binary_warped, binary_warped))*255
+    out_img = np.dstack((binary_warped, binary_warped, binary_warped)) * 255
+    print(out_img)
+    # Save the image
+    if fsave:
+        tmpname = name.split('/')[-1].split('.')[0] + '_StackImage'
+        iname = tmpname + '.png'
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111)
+        ax.imshow(out_img)
+        # ax.plot(left_fitx, ploty, color='red')
+        # ax.plot(right_fitx, ploty, color='red')
+        fig.savefig(loc + "/" + iname, bbox_inches='tight')
+        plt.close(fig)
+        plt.clf()
+        print("[save:] %s" %(loc + "/" + iname))
+
     # Find the peak of the left and right halves of the histogram
     # These will be the starting point for the left and right lines
     midpoint = np.int(histogram.shape[0]/2)
@@ -127,7 +146,7 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv):
     leftx_current = leftx_base
     rightx_current = rightx_base
     # Set the width of the windows +/- margin
-    margin = 100
+    margin = 50
     # Set minimum number of pixels found to recenter window
     minpix = 50
     # Create empty lists to receive left and right lane pixel indices
@@ -182,27 +201,38 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv):
     left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
     right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
 
+
+    # Save the image
+    if fsave:
+        tmpname = name.split('/')[-1].split('.')[0] + '_lanes_sliding_window_1'
+        iname = tmpname + '.png'
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111)
+        ax.imshow(out_img)
+        ax.plot(left_fitx, ploty, color='red')
+        ax.plot(right_fitx, ploty, color='red')
+        fig.savefig(loc + "/" + iname, bbox_inches='tight')
+        plt.close(fig)
+        plt.clf()
+        print("[save:] %s" %(loc + "/" + iname))
+
     out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
     out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
 
-    loc="data/testing"
-    name = name.split('/')[-1].split('.')[0] + '_lanes_sliding_window'
-    iname = name + '.png'
 
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111)
-
-    ax.imshow(out_img)
-    ax.plot(left_fitx, ploty, color='red')
-    ax.plot(right_fitx, ploty, color='yellow')
-
-    plt.xlim(0, 1280)
-    plt.ylim(720, 0)
-
-    fig.savefig(loc + "/" + iname, bbox_inches='tight')
-    plt.close(fig)
-    plt.clf()
-    print("[save:] %s" %(loc + "/" + iname))
+    # Save the image
+    if fsave:
+        tmpname = name.split('/')[-1].split('.')[0] + '_lanes_sliding_window_2'
+        iname = tmpname + '.png'
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111)
+        ax.imshow(out_img)
+        ax.plot(left_fitx, ploty, color='red')
+        ax.plot(right_fitx, ploty, color='red')
+        fig.savefig(loc + "/" + iname, bbox_inches='tight')
+        plt.close(fig)
+        plt.clf()
+        print("[save:] %s" %(loc + "/" + iname))
 
 
     # Generate some fake data to represent lane-line pixels

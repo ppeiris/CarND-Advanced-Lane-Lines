@@ -68,9 +68,6 @@ def mag_thresh(img, sobel_kernel=3, mag_thresh=(0, 255)):
     return binary_output
 
 
-# Define a function that applies Sobel x and y,
-# then computes the direction of the gradient
-# and applies a threshold.
 def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
 
     # Apply the following steps to img
@@ -109,7 +106,7 @@ def hls_select(img, thresh=(0, 255)):
 def applyThreshold(undistimg):
     ksize = 3
     gradx = abs_sobel_thresh(undistimg, orient='x', sobel_kernel=ksize, thresh=(20, 100))
-    # grady = abs_sobel_thresh(undistimg, orient='y', sobel_kernel=ksize, thresh=(20, 100))
+    grady = abs_sobel_thresh(undistimg, orient='y', sobel_kernel=ksize, thresh=(20, 100))
     magthresh_img = mag_thresh(undistimg, sobel_kernel=ksize, mag_thresh=(20, 100))
     directionthres_img = dir_threshold(undistimg, sobel_kernel=ksize, thresh=(0.7, 1.3))
     s_binary = hls_select(undistimg, thresh=(170, 255))

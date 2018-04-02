@@ -4,6 +4,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+M = None
+Minv = None
+
 def saveimageplt(image, pts, name='', loc="data/testing"):
 
     iname = name + '.png'
@@ -22,12 +25,20 @@ def saveimageplt(image, pts, name='', loc="data/testing"):
     print("[save:] %s" %(loc + "/" + iname))
 
 
-def perspectiveTransform(img, name):
+"""
+Compute the transformation and inverse transformation matrix
+"""
+def _computeM(img, name):
+
+    print("Computing Transformation Matrix")
+
+    global M
+    global Minv
 
     srcpts = np.float32([
         [150, img.shape[0]-5],
-        [550, 450],
-        [750, 450],
+        [400, 550],
+        [900, 550],
         [1250, img.shape[0]-5]]
     )
 
@@ -43,14 +54,22 @@ def perspectiveTransform(img, name):
                     [1100, img.shape[0]-5]
                 ])
 
-
-    # img = cv2.line(img, (srcpts[0][0], srcpts[0][1]), (srcpts[1][0], srcpts[1][1]), (0,255,0), 2)
-    # cv2.line(img,(srcpts[0][0], srcpts[0][1]),(srcpts[1][0], srcpts[1][1]),(0,0,255),1)
-
+    img = cv2.line(img, (srcpts[0][0], srcpts[0][1]), (srcpts[1][0], srcpts[1][1]), (0,255,0), 2)
+    cv2.line(img,(srcpts[0][0], srcpts[0][1]),(srcpts[1][0], srcpts[1][1]),(0,0,255),1)
     saveimageplt(img, srcpts, name.split('/')[-1].split('.')[0] + '_point')
 
     M = cv2.getPerspectiveTransform(srcpts, destpts)
     Minv = cv2.getPerspectiveTransform(destpts, srcpts)
+
+
+def perspectiveTransform(img, name):
+
+    global M
+    global Minv
+
+    if M is None:
+        _computeM(img, name)
+
     img_size = (img.shape[1], img.shape[0])
     warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
 
