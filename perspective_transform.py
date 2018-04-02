@@ -36,9 +36,9 @@ def _computeM(img, name):
     global Minv
 
     srcpts = np.float32([
-        [150, img.shape[0]-5],
-        [400, 550],
-        [900, 550],
+        [100, img.shape[0]-5],
+        [450, 500],
+        [800, 500],
         [1250, img.shape[0]-5]]
     )
 
@@ -48,7 +48,7 @@ def _computeM(img, name):
     # 			[1250, img.shape[0]-5]])
 
     destpts = np.float32([
-                    [150, img.shape[0]-5],
+                    [100, img.shape[0]-5],
                     [150, 50],
                     [1100, 50],
                     [1100, img.shape[0]-5]

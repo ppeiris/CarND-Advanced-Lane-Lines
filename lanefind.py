@@ -55,7 +55,7 @@ def main():
 
         # img1 = locatelanes(img, warped_img)
         finalimg  = locatelanes_slidingwindow(img, warped_img, undistimg, Minv, True)
-        break
+        # break
         saveimage(finalimg, img.split('/')[-1].split('.')[0] + '_final')
 
         break
