@@ -101,9 +101,6 @@ def processImage(img, imagepath="test_images/test.jpg"):
     return finalimg
 
 def processImagePipleline(image):
-
-    # print(image)
-
     try:
         # img = addLaneLines(image)
         timg = processImage(image)
@@ -114,18 +111,13 @@ def processImagePipleline(image):
         # print(e)
         return image
 
-
-
 def processVideo():
     # process video
     # white_output = 'data/testing/project_video_output.mp4'
     white_output = 'data/testing/challenge_video.mp4'
-
     clip1 = VideoFileClip("challenge_video.mp4")
     white_clip = clip1.fl_image(processImagePipleline)
     white_clip.write_videofile(white_output, audio=False)
-
-
 
 if __name__ == '__main__':
     # processTestImages()
