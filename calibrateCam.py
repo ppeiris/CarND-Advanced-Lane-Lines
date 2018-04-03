@@ -11,6 +11,7 @@ def saveimage(image, name='', loc="data/testing"):
     """
     Save given numpy array as an png image
     """
+    pass
     iname = name + '.png'
     cv2.imwrite(loc + "/" + iname, image)
     print("[save:] %s" %(loc + "/" + iname))
@@ -61,7 +62,7 @@ def calibrateCamera():
 
     mtx, dist = _loadCameraCalibration()
     if mtx is None:
-        print('Calibrating the camera')
+        # print('Calibrating the camera')
         objpoints = []
         imgpoints = []
         objp = np.zeros((6*9,3), np.float32)
@@ -93,8 +94,8 @@ def calibrateCamera():
                                         )
 
         _saveCameraCalibration(mtx, dist)
-    else:
-        print('Camera calibration matrix has been loaded from file')
+    # else:
+        # print('Camera calibration matrix has been loaded from file')
 
     return mtx, dist
 
@@ -108,11 +109,16 @@ def generateCameraCalibrationImages(mtx, dist):
         image = applyDistortionCorrection(mtx, dist, img)
         saveimage(image, img.split('/')[-1].split('.')[0] + '_camera_cal_distortion_corrected')
 
+
+def _getImage(image):
+    if type(image) is str:
+        return cv2.imread(image)
+    return image
+
 """
 Apply the camera matrix to correct the distortion for give image
 return the distortion corrected image
 """
-def applyDistortionCorrection(mtx, dist, imgpath):
-
-    undistimg = cv2.undistort(cv2.imread(imgpath), mtx, dist, None, mtx)
+def applyDistortionCorrection(mtx, dist, img):
+    undistimg = cv2.undistort(_getImage(img), mtx, dist, None, mtx)
     return undistimg

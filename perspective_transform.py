@@ -30,22 +30,17 @@ Compute the transformation and inverse transformation matrix
 """
 def _computeM(img, name):
 
-    print("Computing Transformation Matrix")
+    # print("Computing Transformation Matrix")
 
     global M
     global Minv
 
     srcpts = np.float32([
         [100, img.shape[0]-5],
-        [450, 500],
-        [800, 500],
+        [550, 450],
+        [750, 450],
         [1250, img.shape[0]-5]]
     )
-
-    # destpts = np.float32([[150, img.shape[0]-5],
-    # 			[150, 0],
-    # 			[1250, 0],
-    # 			[1250, img.shape[0]-5]])
 
     destpts = np.float32([
                     [100, img.shape[0]-5],
@@ -54,9 +49,9 @@ def _computeM(img, name):
                     [1100, img.shape[0]-5]
                 ])
 
-    img = cv2.line(img, (srcpts[0][0], srcpts[0][1]), (srcpts[1][0], srcpts[1][1]), (0,255,0), 2)
-    cv2.line(img,(srcpts[0][0], srcpts[0][1]),(srcpts[1][0], srcpts[1][1]),(0,0,255),1)
-    saveimageplt(img, srcpts, name.split('/')[-1].split('.')[0] + '_point')
+    # img = cv2.line(img, (srcpts[0][0], srcpts[0][1]), (srcpts[1][0], srcpts[1][1]), (0,255,0), 2)
+    # cv2.line(img,(srcpts[0][0], srcpts[0][1]),(srcpts[1][0], srcpts[1][1]),(0,0,255),1)
+    # saveimageplt(img, srcpts, name.split('/')[-1].split('.')[0] + '_point')
 
     M = cv2.getPerspectiveTransform(srcpts, destpts)
     Minv = cv2.getPerspectiveTransform(destpts, srcpts)

@@ -98,15 +98,29 @@ Once we have the transformed image, we need to locate the lanes line pixels. We 
 
 ![hist](output_images/hist.png)
 
-Histogram shows the hot pixels (sum of the pixel values along each column). The right and left peaks show where are the left and right lane starting points respectively. I have used the sliding window to recognize the lane lines. Sliding windows track the left and right lanes and move up when it reach the minimum number of hot pixels that defined in the program as a parameter. Using these pixel values, I fit a second order polynomial to get a approximated function that maps the lanes lines. The following image show the fitted polynomial to lane line pixels.
+Histogram shows the hot pixels (sum of the pixel values along each column). The right and left peaks show where are the left and right lane starting points respectively. I have used the sliding window to recognize the lane lines. Sliding windows track the left and right lanes and move up when it reach the minimum number of hot pixels that defined in the program as a parameter. Using these pixel values, I fit a second order polynomial to get a approximated function that maps the lanes lines. The following image show the fitted polynomial to lane line pixels. Numpy function `np.polyfit` used to compute the polynomial.
 
 ![hist](output_images/poly1.png)
 
+Second order polynomial can be represent as follows,
 
+![equation](http://latex.codecogs.com/gif.latex?%5Cinline%20f%28y%29%3DAy%5E2&plus;By&plus;C)
 
-## How did calculate the radius of the curvature.
+*y* - represent the y-axis pixels
+*A*, *B*, and *C* are coefficients.
 
-## Show final image with lane lines are identified
+## Compute the radius of the curvature.
+
+The next step is to compute the radius of the polynomial that fit the lane lines. The coefficients of the polynomial are given by the return values of the `np.polyfit` method. I have used the computation of the radius of the curvature from [this website](https://www.intmath.com/applications-differentiation/8-radius-curvature.php). The Computation of the curvature is locates in the `locatelanes_slidingwindow` method in [locatelanelines.py](locatelanelines.py). Initially this computation is done in the pixel space. In order to transform this information to the original image we need to apply a conversion from pixel space to meters. The coefficients as follows,
+
+`ym_per_pix = 30/720 # meters per pixel in y dimension`
+`xm_per_pix = 3.7/700 # meters per pixel in x dimension`
+
+the above conversion factors are used to recompute the polynomials in meters.
+
+## Final output
+The following image demonstrate the polynomial that are used (in meters) and apply in to the original test image.
+![final1](output_images/straight_lines1_final.png)
 
 
 # Pipeline video
