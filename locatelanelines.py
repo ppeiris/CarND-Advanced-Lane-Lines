@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-
+from Lanes import *
 # Read in a thresholded image
 # warped = mpimg.imread('warped_example.jpg')
 # window settings
@@ -105,6 +105,7 @@ def locatelanes(name, warped):
 
 def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
 
+    leftl, rightl = getLanes()
     loc="data/testing"
     # Assuming you have created a warped binary image called "binary_warped"
     # Take a histogram of the bottom half of the image
@@ -190,6 +191,9 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
 
+    out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
+    out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
+
     # Fit a second order polynomial to each
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
@@ -201,6 +205,29 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
     left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
     right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+
+    # Define y-value where we want radius of curvature
+    # I'll choose the maximum y-value, corresponding to the bottom of the image
+    y_eval = np.max(ploty)
+    left_curverad = ((1 + (2*left_fit[0]*y_eval + left_fit[1])**2)**1.5) / np.absolute(2*left_fit[0])
+    right_curverad = ((1 + (2*right_fit[0]*y_eval + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
+
+
+    # compute the different between left and right curverad
+    diff_curverad = np.abs(left_curverad - right_curverad)
+
+    # # print(diff_curverad)
+    # if diff_curverad > 30000:
+    #     left_curverad = leftl.getLastCurve()
+    #     right_curverad = rightl.getLastCurve()
+    #     left_fitx = leftl.getfit()
+    #     right_fitx = rightl.getfit()
+    #     print("Restore previous fits")
+    # else:
+    #     leftl.setLastCurve(left_curverad)
+    #     rightl.getLastCurve(right_curverad)
+    #     leftl.setfit(left_fitx)
+    #     rightl.setfit(right_fitx)
 
 
     # Save the image
@@ -217,8 +244,7 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
         plt.clf()
         print("[save:] %s" %(loc + "/" + iname))
 
-    out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
-    out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
+
 
 
     # Save the image
@@ -235,11 +261,14 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
         plt.clf()
         print("[save:] %s" %(loc + "/" + iname))
 
-    # Define y-value where we want radius of curvature
-    # I'll choose the maximum y-value, corresponding to the bottom of the image
-    y_eval = np.max(ploty)
-    left_curverad = ((1 + (2*left_fit[0]*y_eval + left_fit[1])**2)**1.5) / np.absolute(2*left_fit[0])
-    right_curverad = ((1 + (2*right_fit[0]*y_eval + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
+
+
+
+
+
+
+
+
     # print(left_curverad, right_curverad)
     # print("-----------")
     # Define conversions in x and y from pixels space to meters
@@ -250,11 +279,33 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
     left_fit_cr = np.polyfit(lefty*ym_per_pix, leftx*xm_per_pix, 2)
     right_fit_cr = np.polyfit(righty*ym_per_pix, rightx*xm_per_pix, 2)
 
+    # Compute the offset
+    h = binary_warped.shape[0]
+    r_fit_x_int = right_fit[0]*h**2 + right_fit[1]*h + right_fit[2]
+    l_fit_x_int = left_fit[0]*h**2 + left_fit[1]*h + left_fit[2]
+    lane_ceter_position = (r_fit_x_int + l_fit_x_int) /2
+    car_position = binary_warped.shape[1]/2.0
+    center_offset = (car_position - lane_ceter_position) * xm_per_pix
+
     # Calculate the new radii of curvature
     left_curverad = ((1 + (2*left_fit_cr[0]*y_eval*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
     right_curverad = ((1 + (2*right_fit_cr[0]*y_eval*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
     # Now our radius of curvature is in meters
     # print(left_curverad, 'm', right_curverad, 'm')
+
+    ltxt = (left_curverad+right_curverad)/2.0
+
+    if ltxt < 1250.0:
+        left_curverad = leftl.getLastCurve()
+        right_curverad = rightl.getLastCurve()
+        left_fitx = leftl.getfit()
+        right_fitx = rightl.getfit()
+        print("Restore previous fits")
+    else:
+        leftl.setLastCurve(left_curverad)
+        rightl.setLastCurve(right_curverad)
+        leftl.setfit(left_fitx)
+        rightl.setfit(right_fitx)
 
 
     # Create an image to draw the lines on
@@ -273,10 +324,13 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
     newwarp = cv2.warpPerspective(color_warp, Minv, (undist.shape[1], undist.shape[0]))
     # Combine the result with the original image
     result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
+
     font = cv2.FONT_HERSHEY_SIMPLEX
-    ltxt = "Left Curve Radius:%sm" %(round(left_curverad, 2))
-    rtxt = "Right Curve Radius:%sm" %(round(right_curverad, 2))
+    ltxt = "Radius of Curvature:%sm" %(round((left_curverad+right_curverad)/2.0, 2))
+    centertxt = "Vehicle is %sm left of center" %(np.abs(round(center_offset, 4)))
+    diff_curverad = "Curve diff %s" %(diff_curverad)
     cv2.putText(result,ltxt,(20,100), font, 1,(255,0,0),1,cv2.LINE_AA)
-    cv2.putText(result,rtxt,(20,150), font, 1,(255,0,0),1,cv2.LINE_AA)
+    cv2.putText(result,centertxt,(20,150), font, 1,(255,0,0),1,cv2.LINE_AA)
+    # cv2.putText(result,diff_curverad,(20,250), font, 1,(255,0,0),1,cv2.LINE_AA)
 
     return result

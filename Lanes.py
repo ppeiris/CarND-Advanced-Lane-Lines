@@ -7,7 +7,7 @@ class Line():
         # x values of the last n fits of the line
         self.recent_xfitted = []
         #average x values of the fitted line over the last n iterations
-        self.bestx = None
+        self.bestx = 0
         #polynomial coefficients averaged over the last n iterations
         self.best_fit = None
         #polynomial coefficients for the most recent fit
@@ -22,3 +22,37 @@ class Line():
         self.allx = None
         #y values for detected line pixels
         self.ally = None
+
+        self.curverad = None
+        self.fits = None
+
+    def add(self):
+        self.bestx +=1
+
+    def getLastCurve(self):
+        return self.curverad
+
+    def setLastCurve(self, c):
+        self.curverad = c
+
+    def getfit(self):
+        return self.fits
+
+    def setfit(self, fit):
+        self.fits = fit
+
+
+leftLane = None
+rightLane = None
+def initLanes():
+    global leftLane
+    global rightLane
+    leftLane = Line()
+    rightLane = Line()
+
+
+def getLanes():
+    global leftLane
+    global rightLane
+    return leftLane, rightLane
+

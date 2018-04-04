@@ -37,8 +37,8 @@ def _computeM(img, name):
 
     srcpts = np.float32([
         [100, img.shape[0]-5],
-        [550, 450],
-        [750, 450],
+        [525, 475],
+        [775, 475],
         [1250, img.shape[0]-5]]
     )
 

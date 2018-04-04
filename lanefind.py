@@ -17,7 +17,7 @@ from utils import *
 from thresholding import applyThreshold
 from perspective_transform import perspectiveTransform
 from locatelanelines import locatelanes, locatelanes_slidingwindow
-from Lanes import Line
+from Lanes import *
 # Import everything needed to edit/save/watch video clips
 from moviepy.editor import VideoFileClip
 from IPython.display import HTML
@@ -27,6 +27,8 @@ distortedImageLoc = 'test_images'
 # Compute the camera calibration matrix and distortion coefficients
 
 def processTestImages():
+
+    initLanes()
     # [x] Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
     mtx, dist = calibrateCamera()
 
@@ -72,6 +74,7 @@ def processTestImages():
     # applyThreshold(image)
 
 def processImage(img, imagepath="test_images/test.jpg"):
+
     mtx, dist = calibrateCamera()
     # '''
     #     [x] Apply a distortion correction to raw color images.
@@ -108,14 +111,15 @@ def processImagePipleline(image):
         return timg
     except Exception as e:
         # print("bad")
-        # print(e)
+        print(e)
         return image
 
 def processVideo():
     # process video
     # white_output = 'data/testing/project_video_output.mp4'
-    white_output = 'data/testing/challenge_video.mp4'
-    clip1 = VideoFileClip("challenge_video.mp4")
+    initLanes()
+    white_output = 'data/testing/project_video.mp4'
+    clip1 = VideoFileClip("project_video.mp4")
     white_clip = clip1.fl_image(processImagePipleline)
     white_clip.write_videofile(white_output, audio=False)
 

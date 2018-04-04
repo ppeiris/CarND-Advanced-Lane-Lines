@@ -88,7 +88,7 @@ Once I have play around with all the above thresholding method, I have combine a
 
 Once we have the threshold image, we have an image with clear lane lines are identified; however, this image has many other lines that had been detected. Now we have to focus on only the region we are interested in. For this projects its the lane lines on the road. Using perspective transform we can focus on region of interest. The following image show the application of perspective transform in one of the test images.
 
-![colorth](output_images/transform.jpg)
+![colorth](output_images/transform.png)
 
 As a start point for perspective transform, I pick 4 points in the source image (left image above) and mark the region of interest (in this project it's the lanes lines). We refer to these points as source points. Once we identify the source points, we also need to recognize another 4 points that transform source points which we call destination points. Once we determine these source and destination points, I have employed the `cv2.getPerspectiveTransform(...)` method to compute the transformation matrix. Once we have this transformation matrix, we can apply the OpenCV method `cv2.warpPerspective(...)` to transform an image and get the image that focuses area of interest. We do not compute this transformation matrix for every single image since the images we are using for this project is coming from a single camera and the dimensions of the images are the same. We will be using the transformed image to perform lane detections. Once we have detected the lines, we need to map that lane lines back into the original image. For this transformation is called the inverse transform and the matrix that use for this transformation is called the inverse transformation matrix. We can compute this matrix by using the same OpenCV method `cv2.getPerspectiveTransform(...)` but now the source points become the destination points, and destination points become the source points. Code for this part of the project can be found in `perspectiveTransform(...)` method in [perspective_transform.py](perspective_transform.py) file.
 
@@ -125,7 +125,7 @@ The following image demonstrate the polynomial that are used (in meters) and app
 
 # Final video
 
-[Final Video](https://www.youtube.com/watch?v=pmJeiu9WAsw)
+[Final Video](https://www.youtube.com/watch?v=OYMNiNSWN4Y&feature=youtu.be)
 
 # Discussion
 
