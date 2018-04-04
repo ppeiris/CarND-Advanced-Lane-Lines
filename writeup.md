@@ -125,7 +125,7 @@ The following image demonstrate the polynomial that are used (in meters) and app
 
 # Final video
 
-[Final Video](https://www.youtube.com/watch?v=OYMNiNSWN4Y&feature=youtu.be)
+[Final Video](https://youtu.be/kE2ueSFBHVc)
 
 # Discussion
 

@@ -22,6 +22,8 @@ from Lanes import *
 from moviepy.editor import VideoFileClip
 from IPython.display import HTML
 
+mtx = None
+dist = None
 
 distortedImageLoc = 'test_images'
 # Compute the camera calibration matrix and distortion coefficients
@@ -74,8 +76,8 @@ def processTestImages():
     # applyThreshold(image)
 
 def processImage(img, imagepath="test_images/test.jpg"):
-
-    mtx, dist = calibrateCamera()
+    global mtx
+    global dist
     # '''
     #     [x] Apply a distortion correction to raw color images.
     # '''
@@ -98,7 +100,11 @@ def processImage(img, imagepath="test_images/test.jpg"):
     # # break
 
     # img1 = locatelanes(img, warped_img)
-    finalimg  = locatelanes_slidingwindow(imagepath, warped_img, undistimg, Minv, False)
+
+    try:
+        finalimg  = locatelanes_slidingwindow(imagepath, warped_img, undistimg, Minv, False)
+    except Exception as e:
+        print(e)
     # # break
     # saveimage(finalimg, img.split('/')[-1].split('.')[0] + '_final')
     return finalimg
@@ -115,10 +121,13 @@ def processImagePipleline(image):
         return image
 
 def processVideo():
+    global mtx
+    global dist
     # process video
     # white_output = 'data/testing/project_video_output.mp4'
     initLanes()
     white_output = 'data/testing/project_video.mp4'
+    mtx, dist = calibrateCamera()
     clip1 = VideoFileClip("project_video.mp4")
     white_clip = clip1.fl_image(processImagePipleline)
     white_clip.write_videofile(white_output, audio=False)

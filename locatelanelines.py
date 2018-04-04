@@ -244,9 +244,6 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
         plt.clf()
         print("[save:] %s" %(loc + "/" + iname))
 
-
-
-
     # Save the image
     if fsave:
         tmpname = name.split('/')[-1].split('.')[0] + '_lanes_sliding_window_2'
@@ -260,14 +257,6 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
         plt.close(fig)
         plt.clf()
         print("[save:] %s" %(loc + "/" + iname))
-
-
-
-
-
-
-
-
 
     # print(left_curverad, right_curverad)
     # print("-----------")
@@ -295,17 +284,59 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
 
     ltxt = (left_curverad+right_curverad)/2.0
 
-    if ltxt < 1250.0:
-        left_curverad = leftl.getLastCurve()
-        right_curverad = rightl.getLastCurve()
-        left_fitx = leftl.getfit()
-        right_fitx = rightl.getfit()
-        print("Restore previous fits")
-    else:
-        leftl.setLastCurve(left_curverad)
-        rightl.setLastCurve(right_curverad)
-        leftl.setfit(left_fitx)
-        rightl.setfit(right_fitx)
+
+    # cv2.line(undisttmp,(srcpts[0][0], srcpts[0][1]),(srcpts[1][0], srcpts[1][1]),(0,0,255),1)
+    # saveimageplt(undisttmp, srcpts, name.split('/')[-1].split('.')[0] + '_linewidth')
+
+
+    try:
+        tmpmid = int(len(left_fitx)/2)
+        tmp_pt1_x = int(left_fitx[tmpmid])
+        tmp_pt1_y = int(ploty[tmpmid])
+
+        tmp_pt2_x = int(right_fitx[tmpmid])
+        tmp_pt2_y = int(ploty[tmpmid])
+
+        current_width = (right_fitx[tmpmid] - left_fitx[tmpmid])
+        prev_width = leftl.getPrevWidth()
+
+        widthRatio = 1.0
+        restored = False
+        if prev_width:
+            # compute the ratio
+            widthRatio = prev_width/current_width
+
+        widthRatiodisplay = "Width ratio %s" %(widthRatio)
+        ltxtdisplay = "Radius of Curvature:%sm" %(round((left_curverad+right_curverad)/2.0, 2))
+
+        if (widthRatio < 0.9) or (widthRatio > 1.08):
+            # use the previous detection
+            left_curverad = leftl.getLastCurve()
+            right_curverad = rightl.getLastCurve()
+            left_fitx = leftl.getfit()
+            right_fitx = rightl.getfit()
+            widthRatiodisplay = "%s (restore from previous)" %(widthRatiodisplay)
+            ltxtdisplay = "%s (restore from previous)" %(ltxtdisplay)
+            restored = True
+        else:
+            if (ltxt < 1250.0) or (ltxt > 8000.0):
+                left_curverad = leftl.getLastCurve()
+                right_curverad = rightl.getLastCurve()
+                left_fitx = leftl.getfit()
+                right_fitx = rightl.getfit()
+                ltxtdisplay = "%s (restore from previous)" %(ltxtdisplay)
+                # print("Restore previous fits: %s" %(ltxt))
+            else:
+                leftl.setPrevWidth(current_width)
+                leftl.setLastCurve(left_curverad)
+                rightl.setLastCurve(right_curverad)
+                leftl.setfit(left_fitx)
+                rightl.setfit(right_fitx)
+    except Exception as e:
+        raise e
+
+
+
 
 
     # Create an image to draw the lines on
@@ -326,11 +357,16 @@ def locatelanes_slidingwindow(name, binary_warped, undist, Minv, fsave=False):
     result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
 
     font = cv2.FONT_HERSHEY_SIMPLEX
-    ltxt = "Radius of Curvature:%sm" %(round((left_curverad+right_curverad)/2.0, 2))
-    centertxt = "Vehicle is %sm left of center" %(np.abs(round(center_offset, 4)))
+
+    centertxt = "Vehicle is %sm left of center" %(round(center_offset, 4))
     diff_curverad = "Curve diff %s" %(diff_curverad)
-    cv2.putText(result,ltxt,(20,100), font, 1,(255,0,0),1,cv2.LINE_AA)
+    current_width = "Lane width %s" %(current_width)
+
+    cv2.putText(result,ltxtdisplay,(20,100), font, 1,(255,0,0),1,cv2.LINE_AA)
     cv2.putText(result,centertxt,(20,150), font, 1,(255,0,0),1,cv2.LINE_AA)
     # cv2.putText(result,diff_curverad,(20,250), font, 1,(255,0,0),1,cv2.LINE_AA)
+    # cv2.putText(result,current_width,(20,300), font, 1,(255,0,0),1,cv2.LINE_AA)
+    # cv2.putText(result,widthRatiodisplay,(20,350), font, 1,(255,0,0),1,cv2.LINE_AA)
+    # cv2.line(result, (tmp_pt1_x, tmp_pt1_y), (tmp_pt2_x, tmp_pt2_y), (0,255,0), 2)
 
     return result

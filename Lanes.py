@@ -25,6 +25,7 @@ class Line():
 
         self.curverad = None
         self.fits = None
+        self.prevWidth = None
 
     def add(self):
         self.bestx +=1
@@ -41,6 +42,11 @@ class Line():
     def setfit(self, fit):
         self.fits = fit
 
+    def getPrevWidth(self):
+        return self.prevWidth
+
+    def setPrevWidth(self, width):
+        self.prevWidth = width
 
 leftLane = None
 rightLane = None
